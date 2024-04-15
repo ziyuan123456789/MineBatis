@@ -1,16 +1,16 @@
 
-	java:S112-"FDefine and throw a dedicated exception instead of using a generic one.(Ò‚Òéüÿÿÿÿ8Üÿ´î1J$329e5128-8cea-47b1-82b1-d428a402e8c7
+	java:S1121"FDefine and throw a dedicated exception instead of using a generic one.(Ò‚Òéüÿÿÿÿ8ÔÔî1J$9a5b7506-727f-4697-ad2a-9310219f8f3e
 r
-java:S3740#"/Provide the parametrized type for this generic.(öã°õ8İÿ´î1J$36460133-9b9c-4d45-b7ef-d51a9e783945
-q
-java:S3740f"/Provide the parametrized type for this generic.(œ¬Ær8İÿ´î1J$65cc898a-2c6b-4259-b325-ce739bf40e58
-¥
-java:S1488s"bImmediately return this expression instead of assigning it to the temporary variable "connection".(ØñÜ¹8Şÿ´î1J$389743cc-cfb6-4e78-b239-02d9eb400ca6
+java:S3740&"/Provide the parametrized type for this generic.(öã°õ8ÔÔî1J$e2aa16db-eddd-47dd-b8bb-61f1b2836400
+r
+java:S3740ƒ"/Provide the parametrized type for this generic.(œ¬Ær8ÔÔî1J$b84c28dc-035a-4c6b-9766-c867154fcad0
+¦
+java:S1488”"bImmediately return this expression instead of assigning it to the temporary variable "connection".(ØñÜ¹8ÔÔî1J$14cb45ad-6f01-4d33-9ff4-a9005e1ee50a
 ‚
-java:S1118!":Add a private constructor to hide the implicit public one.(Õ¬•úÿÿÿÿ8åÿ´î1J$7c36ec97-b02a-4999-8c06-9f446867872c
+java:S1118$":Add a private constructor to hide the implicit public one.(Õ¬•úÿÿÿÿ8’ÔÔî1J$d4dea1d4-85cf-4d6a-b859-dcf194810178
 •
-java:S37761"RRefactor this method to reduce its Cognitive Complexity from 21 to the 15 allowed.(¨çÌ·8êÿ´î1J$0e6ec320-3fde-4dca-abc3-b63bf732fda1
-~
-java:S1751j"6Remove this "return" statement or make it conditional.(Ï‘Íıÿÿÿÿ8ôÿ´î1J$9305eb19-9be9-444e-a854-6d9b11c250cc
-y
-java:S6437s"6Revoke and change this password, as it is compromised.(ØñÜ¹8õÿ´î1J$280870e6-38c6-4977-9505-517ddf0939aa
+java:S37765"RRefactor this method to reduce its Cognitive Complexity from 29 to the 15 allowed.(¨çÌ·8•ÔÔî1J$e2339220-19e0-43ee-9c89-8447ee4bc4b3
+—
+java:S6201g"OReplace this instanceof check and cast with 'instanceof ParameterizedType type'(®ŒÑùÿÿÿÿ8™ÔÔî1J$3757f9d4-cc45-4a9f-a471-633236b2fbc1
+z
+java:S6437”"6Revoke and change this password, as it is compromised.(ØñÜ¹8›ÔÔî1J$5f0129b6-037c-4702-9568-a9905daa0211

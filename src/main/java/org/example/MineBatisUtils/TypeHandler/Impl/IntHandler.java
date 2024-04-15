@@ -10,6 +10,7 @@ import java.sql.SQLException;
  * @author ziyuan
  * @since 2024.04
  */
+//xxx:其实没有必要
 public class IntHandler implements TypeHandler<Integer> {
     @Override
     public void setParameter(PreparedStatement ps, int i, Integer parameter) throws SQLException {

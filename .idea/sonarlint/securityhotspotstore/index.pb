@@ -104,3 +104,5 @@ G.idea/sonarlint/issuestore/4/a/4a642889147b05a3bc281aec81171f902ac6b250,6\0\60
 Q.idea/sonarlint/securityhotspotstore/4/a/4a642889147b05a3bc281aec81171f902ac6b250,f\5\f5c6bbcce0bc9ee72536d80d1b631453d8beb426
 y
 Isrc/main/java/org/example/MineBatisUtils/TypeHandler/Impl/IntHandler.java,e\d\ed15209638b6f5cf36521c1f248687b65cd58a02
+7
+LICENSE,0\3\0398ccd0f49298b10a3d76a47800d2ebecd49859
