@@ -22,6 +22,9 @@ public  class ParameterMappingTokenHandler implements TokenHandler {
     public List<ParameterMapping> getParameterMapping() {
         return parameterMappings;
     }
+    public void resetParameterMappings(){
+        parameterMappings.clear();
+    }
 
 
 }

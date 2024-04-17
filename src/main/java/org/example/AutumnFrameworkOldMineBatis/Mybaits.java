@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * @author wsh
  */
-//xxx 曾经AtunmnMvc用到的组件,在此存档
+//xxx 曾经AutumnMvc用到的组件,在此存档
 //@MyComponent
 public class Mybaits {
     public static <T> List<T> reflexByClass(Class<T> clazz, ResultSet resultSet, String[] fieldList) throws SQLException, NoSuchMethodException, NoSuchFieldException, IllegalAccessException, InvocationTargetException, InstantiationException {

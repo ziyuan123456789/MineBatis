@@ -1,11 +1,12 @@
 package org.example.MineBatisUtils;
 
 import lombok.extern.slf4j.Slf4j;
-import org.example.MineBatisUtils.TypeHandler.Impl.IntHandler;
-import org.example.MineBatisUtils.TypeHandler.Impl.IntegerHandler;
-import org.example.MineBatisUtils.TypeHandler.Impl.LocalDateTimeHandler;
-import org.example.MineBatisUtils.TypeHandler.Impl.StringHandler;
-import org.example.MineBatisUtils.TypeHandler.TypeHandler;
+import org.example.MineBatisUtils.type.TypeHandler.Impl.IntHandler;
+import org.example.MineBatisUtils.type.TypeHandler.Impl.IntegerHandler;
+import org.example.MineBatisUtils.type.TypeHandler.Impl.LocalDateTimeHandler;
+import org.example.MineBatisUtils.type.TypeHandler.Impl.StringHandler;
+import org.example.MineBatisUtils.type.TypeHandler.TypeHandler;
+import org.example.MineBatisUtils.session.SqlSession;
 import org.example.OrmAnnotations.MySelect;
 
 import java.beans.Introspector;
@@ -33,7 +34,7 @@ import java.util.Map;
  * @since 2024.04
  */
 @Slf4j
-public class MapperJdkProxyFactory {
+public class MapperJdkProxyFactory implements SqlSession {
     //xxx:这里是一个map,用来存放不同类型的处理器,这里只有int和String,LocalDateTime三种
     private static Map<Class<?>, TypeHandler> handlerMap = new HashMap<>();
 
@@ -50,8 +51,9 @@ public class MapperJdkProxyFactory {
         }
     }
 
-    public static <T> T getMapper(Class<T> mapper) {
-        Object proxyInstance = Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), new Class[]{mapper}, new InvocationHandler() {
+    @Override
+    public <T> T getMapper(Class<?> mapperClass) throws Exception {
+        Object proxyInstance = Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), new Class[]{mapperClass}, new InvocationHandler() {
             @Override
             public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
                 //xxx:跳过object里本来就有的方法,不进行代理
@@ -100,8 +102,7 @@ public class MapperJdkProxyFactory {
                 //xxx:先看看是不是一个List 如果是则取出泛型类型覆盖clazz,并且标记isList为true
                 if(clazz.isAssignableFrom(List.class)){
                     Type returnType = method.getGenericReturnType();
-                    if(returnType instanceof ParameterizedType){
-                        ParameterizedType type = (ParameterizedType) returnType;
+                    if(returnType instanceof ParameterizedType type){
                         clazz= (Class<?>) type.getActualTypeArguments()[0];
                         isList=true;
                     }
@@ -136,6 +137,9 @@ public class MapperJdkProxyFactory {
 
                 }
                 connection.close();
+                if (returnList.isEmpty()) {
+                    return null;
+                }
                 if (isList) {
                     return returnList;
                 } else {
@@ -151,4 +155,31 @@ public class MapperJdkProxyFactory {
         });
         return (T) proxyInstance;
     }
+
+    @Override
+    public <T> List<T> selectList(String statementId, Method method, Object[] args) throws Exception {
+        return List.of();
+    }
+
+    @Override
+    public <T> T selectOne(String statementId,Method method,  Object[] args) throws Exception {
+        return null;
+    }
+
+    @Override
+    public <T> T insert(String statementId, Method method, Object[] args) throws Exception {
+        return null;
+    }
+
+    @Override
+    public <T> T update(String statementId,Method method,  Object[] args) throws Exception {
+        return null;
+    }
+
+    @Override
+    public <T> T delete(String statementId,Method method,  Object[] args) throws Exception {
+        return null;
+    }
+
+
 }

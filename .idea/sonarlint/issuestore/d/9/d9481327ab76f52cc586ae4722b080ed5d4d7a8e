@@ -1,16 +1,12 @@
 
-	java:S1121"FDefine and throw a dedicated exception instead of using a generic one.(Ò‚Òéüÿÿÿÿ8ÔÔî1J$9a5b7506-727f-4697-ad2a-9310219f8f3e
+	java:S1122"FDefine and throw a dedicated exception instead of using a generic one.(Ò‚Òéüÿÿÿÿ8‰½Ãî1J$665ba877-5c22-47ce-8a80-bb5b9dc45967
 r
-java:S3740&"/Provide the parametrized type for this generic.(öã°õ8ÔÔî1J$e2aa16db-eddd-47dd-b8bb-61f1b2836400
+java:S3740'"/Provide the parametrized type for this generic.(öã°õ8›Ÿİî1J$47d48a1d-977e-4e22-bd48-86fca784602b
 r
-java:S3740ƒ"/Provide the parametrized type for this generic.(œ¬Ær8ÔÔî1J$b84c28dc-035a-4c6b-9766-c867154fcad0
+java:S3740„"/Provide the parametrized type for this generic.(œ¬Ær8›Ÿİî1J$d4b204b1-168d-49c4-b0bc-d14d2cedec87
 ¦
-java:S1488”"bImmediately return this expression instead of assigning it to the temporary variable "connection".(ØñÜ¹8ÔÔî1J$14cb45ad-6f01-4d33-9ff4-a9005e1ee50a
-‚
-java:S1118$":Add a private constructor to hide the implicit public one.(Õ¬•úÿÿÿÿ8’ÔÔî1J$d4dea1d4-85cf-4d6a-b859-dcf194810178
-•
-java:S37765"RRefactor this method to reduce its Cognitive Complexity from 29 to the 15 allowed.(¨çÌ·8•ÔÔî1J$e2339220-19e0-43ee-9c89-8447ee4bc4b3
-—
-java:S6201g"OReplace this instanceof check and cast with 'instanceof ParameterizedType type'(®ŒÑùÿÿÿÿ8™ÔÔî1J$3757f9d4-cc45-4a9f-a471-633236b2fbc1
+java:S1488˜"bImmediately return this expression instead of assigning it to the temporary variable "connection".(ØñÜ¹8‹½Ãî1J$a7e42dab-b38e-467b-a875-8188514a5619
+š
+java:S37767"RRefactor this method to reduce its Cognitive Complexity from 31 to the 15 allowed.(±†Êùıÿÿÿÿ8Á©¶±î1J$35457fea-69f8-40e9-97a2-c83bd0b985a7
 z
-java:S6437”"6Revoke and change this password, as it is compromised.(ØñÜ¹8›ÔÔî1J$5f0129b6-037c-4702-9568-a9905daa0211
+java:S6437˜"6Revoke and change this password, as it is compromised.(ØñÜ¹8œ½Ãî1J$68188e30-0e5f-4b40-8395-608d04b1e6c7
