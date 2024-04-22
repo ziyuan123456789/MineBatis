@@ -126,3 +126,7 @@ z
 Jsrc/main/java/org/example/MineBatisUtils/type/TypeHandler/TypeHandler.java,e\8\e82b9775232db4312030ef426373df082959b6c3
 h
 8src/main/java/org/example/JavaBeans/HardwareSetting.java,5\d\5db6bb4d2581c03173eb2a6f4729809a2eab16c7
+o
+?src/main/java/org/example/MineBatisUtils/mapping/ResultMap.java,0\3\03cddc77b19e3b8fd3b9a3cefed1c0c817aa8b67
+t
+Dsrc/main/java/org/example/MineBatisUtils/mapping/ResultMapField.java,a\b\abe9e4fbe45cdfbb6260659371a568871f4ee8f1

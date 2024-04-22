@@ -25,14 +25,15 @@
 - 简易的Class映射,仅可以处理单个对象的查询
 - 可以使用注解进行简易查询
 - 加入了简单的xml支持
+- 加入简单的resultMap
 
 ## 备注:
 
-- 曾经在AutumnMvc框架中写过一版,但是由于AutumnMvc框架的设计问题,导致Orm框架的设计不够完善,仅能支持注解方式,所以重新写了一个,日后会迁移回AutumnMvc
+- 曾经在AutumnMvc框架中写过一版,但是由于AutumnMvc工作量太大,导致Orm框架的初始设计不够完善,仅能支持注解方式,所以重新写了一个,日后会迁移回AutumnMvc
 - 之前那一版放在AutumnFrameworkOldMineBatis软件包中保存,以后可能开一个新的分支进行归档处理
 
 ## 代码示范
-### Mapper
+### Mapper 注解版本
 ```java
 @MyMapper
 public interface UserMapper {
@@ -43,19 +44,34 @@ public interface UserMapper {
 }
 
 ```
+### Mapper Xml版本
+```java
+public interface UserMapper {
+    List<User> getSomeUser(Integer userId);
+}
+
+```
 
 ```xml
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="org.example.Mapper.UserMapper">
-    <select id="getOneUser" resultType="org.example.JavaBeans.User" parameterType="java.lang.Integer">
-        select * from user where UserId=#{userId} and Password =#{password}
-    </select>
-
-    <select id="getAllUser" resultType="org.example.JavaBeans.User" parameterType="java.lang.Integer">
-        select * from user where Role=#{nums}
-    </select>
+  <select id="getSomeUser" resultMap="whyYouDoThis" parameterType="java.lang.Integer">
+    SELECT UserID as testUserID,
+    Username as testUserName,
+    Role,
+    `Password`,
+    Salt,
+    Telephone,
+    regTime,
+    enabled
+    FROM `user`
+    where UserId > #{userId}
+  </select>
+  <resultMap id="whyYouDoThis" type="org.example.JavaBeans.User" isDisable="false">
+    <result property="userID" column="testUserID"/>
+    <result property="username" column="testUserName"/>
+  </resultMap>
 </mapper>
+
 ```
 
 ```java
@@ -71,14 +87,13 @@ public class Main {
         //xxx:SqlSession生产Jdk代理类
         try {
             UserMapper userMapper = sqlSession.getMapper(UserMapper.class);
-            log.info(userMapper.getOneUser(1).toString());
-            log.info(userMapper.getAllUser(0).toString());
+            log.info(userMapper.getSomeUser(1).toString());
         } catch (Exception e) {
             log.error("执行失败", e);
         }
-
+        //xxx:注解启动
         UserMapper userMapper = new MapperJdkProxyFactory().getMapper(UserMapper.class);
-        log.info(userMapper.getAllUser(1).toString());
+        log.info(userMapper.getSomeUser(1).toString());
 
     }
 }
@@ -105,6 +120,8 @@ public class Main {
 - 纳入AutumnIoc容器,避免繁琐的Xml配置
 
 ## 更新记录:
+### 2024/4/22
+- 加入了简单的resultMap,可以手动对字段进行映射,但是目前只支持简单的映射,不支持级联映射,本框架使用isDisable字段进行标注,当isDisable为true时仅映射ResultMap中定义的字段,反之则会尝试自动映射,当遇到resultMap中的内容依照其中的内容进行映射,同时尽可能忽略大小写的差异,框架自动匹配.如果你没有写JavaType则不会进行typeHandler的匹配,如果你写了JavaType则会进行typeHandler的匹配,如果没有匹配到则getObject
 
 ### 2024/4/17
 

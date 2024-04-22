@@ -1,6 +1,10 @@
 package org.example.MineBatisUtils.configuration;
 
 import lombok.Data;
+import org.example.MineBatisUtils.mapping.ResultMap;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author ziyuan
@@ -19,5 +23,6 @@ public class MappedStatement {
     private String parameterType;
     //xxx:crudType
     private String sqlCommandType;
-
+    //xxx:resultMap的唯一标识
+    private String resultMapId;
 }

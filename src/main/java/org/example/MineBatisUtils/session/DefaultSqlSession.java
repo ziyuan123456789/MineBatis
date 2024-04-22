@@ -21,8 +21,8 @@ import java.util.List;
 @Slf4j
 //xxx:如何水代码行数?
 public class DefaultSqlSession implements SqlSession {
-    private Configuration configuration;
-    private Executor executor ;
+    private final Configuration configuration;
+    private final Executor executor;
 
     public DefaultSqlSession(Configuration configuration, TypeHandlerRegistry typeHandlerRegistry) {
         this.configuration = configuration;
@@ -42,32 +42,9 @@ public class DefaultSqlSession implements SqlSession {
                     if (mappedStatement == null) {
                         throw new IllegalStateException("没检测到标签" + statementId);
                     }
-//                        String sql = mappedStatement.getSql();
-//                        //xxx:把参数和参数名对应起来,放到map里
-//                        Map<String, Object> paramValueMapping = new HashMap<>();
-//                        Parameter[] parameters = method.getParameters();
-//                        for (int i = 0; i < parameters.length; i++) {
-//                            Parameter parameter = parameters[i];
-//                            paramValueMapping.put(parameter.getName(), args[i]);
-//
-//                        }
-//                        //xxx:构建解析器,把mybatis#{}风格转化为jdbc ?风格
-//                        ParameterMappingTokenHandler parameterMappingTokenHandler = new ParameterMappingTokenHandler();
-//                        GenericTokenParser genericTokenParser = new GenericTokenParser("#{", "}", parameterMappingTokenHandler);
-//                        String jdbcSql = genericTokenParser.parse(sql);
-//                        Connection connection = configuration.getDataSource().getConnection();
-//                        PreparedStatement statement = connection.prepareStatement(jdbcSql);
-//                        //xxx:在替换#{}的同时,取出里面的参数名称封装为ParameterMapping,放到数组中,保存好顺序
-//                        List<ParameterMapping> parameterMapping = parameterMappingTokenHandler.getParameterMapping();
-//                        for (int i = 0; i < parameterMapping.size(); i++) {
-//                            //xxx:拿到参数名字,根据名字找到对应的值,然后根据值的类型找到对应的处理器,进行setParameter
-//                            String argName = parameterMapping.get(i).getProperty();
-//                            Class<?> clazz = paramValueMapping.get(argName).getClass();
-//                            //xxx:jdbc这个为什么不从0开始?反而从1开始?
-//                            typeHandlerRegistry.getTypeHandlers().get(clazz).setParameter(statement, i + 1, paramValueMapping.get(argName));
-//                        }
-
+                    //xxx:依照xml标签确认增删改查
                     String sqlCommandType = mappedStatement.getSqlCommandType();
+                    //xxx:根据sql类型调用不同的方法
                     switch (sqlCommandType) {
                         case "insert":
                             return insert(statementId, method, args);
@@ -93,7 +70,7 @@ public class DefaultSqlSession implements SqlSession {
 
     @Override
     public <T> List<T> selectList(String statementId, Method method, Object[] args) throws Exception {
-        List returnList;
+        List<T> returnList;
         try {
             MappedStatement ms = this.configuration.getMappedStatement(statementId);
             returnList = this.executor.query(configuration,ms,method,args);

@@ -13,7 +13,7 @@ import java.util.List;
 @MyMapper
 public interface UserMapper {
 
-    User getOneUser(Integer userId,String password);
+    List<User> getOneUser(Integer userId);
     @MySelect("select * from user where UserID > #{nums}")
     List<User> getAllUser(Integer nums);
 

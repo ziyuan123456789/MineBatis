@@ -4,6 +4,7 @@ import org.example.MineBatisUtils.configuration.Configuration;
 import org.example.MineBatisUtils.configuration.MappedStatement;
 
 import java.lang.reflect.Method;
+import java.sql.SQLException;
 
 /**
  * @author ziyuan
@@ -11,6 +12,7 @@ import java.lang.reflect.Method;
  */
 //xxx:sql执行器
 public interface Executor {
+    int update(Configuration configuration, MappedStatement mappedStatement, Method method, Object[] params) throws SQLException;
     //xxx:查询
     <T> T query(Configuration configuration, MappedStatement mappedStatement, Object[] params) throws Exception;
 
@@ -18,4 +20,5 @@ public interface Executor {
 
 
     <T> T selectQuery(Configuration configuration, MappedStatement mappedStatement, Object[] params) throws Exception;
+
 }

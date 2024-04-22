@@ -6,23 +6,28 @@ import org.example.MineBatisUtils.ParameterMappingTokenHandler;
 import org.example.MineBatisUtils.configuration.BoundSql;
 import org.example.MineBatisUtils.configuration.Configuration;
 import org.example.MineBatisUtils.configuration.MappedStatement;
+import org.example.MineBatisUtils.mapping.ResultMap;
+import org.example.MineBatisUtils.mapping.ResultMapField;
 import org.example.MineBatisUtils.type.TypeHandler.TypeHandler;
 import org.example.MineBatisUtils.type.TypeHandlerRegistry;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.beans.Introspector;
 import java.beans.PropertyDescriptor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * @author ziyuan
@@ -30,11 +35,17 @@ import java.util.Map;
  */
 //xxx:简单执行器
 public class SimpleExecutor implements Executor {
+    private static final Logger log = LoggerFactory.getLogger(SimpleExecutor.class);
     private TypeHandlerRegistry typeHandlerRegistry;
 
     private ParameterMappingTokenHandler parameterMappingTokenHandler = new ParameterMappingTokenHandler();
     public SimpleExecutor(TypeHandlerRegistry typeHandlerRegistry){
         this.typeHandlerRegistry=typeHandlerRegistry;
+    }
+
+    @Override
+    public int update(Configuration configuration, MappedStatement mappedStatement, Method method, Object[] params) throws SQLException {
+        return 0;
     }
 
     @Override
@@ -45,18 +56,21 @@ public class SimpleExecutor implements Executor {
 
     @Override
     public <T> T query(Configuration configuration, MappedStatement mappedStatement, Method method, Object[] args) throws Exception {
+        boolean isUseResultMap = false;
         Connection connection = configuration.getDataSource().getConnection();
         String sql = mappedStatement.getSql();
         BoundSql boundSql = getBoundSql(sql);
         String parameterType = mappedStatement.getResultType();
-        Class<?> parameterTypeClass = getClassType(parameterType);
+        if (parameterType == null) {
+            parameterType = configuration.getResultMap(mappedStatement.getResultMapId()).getType();
+            isUseResultMap = true;
+        }
         //xxx:把参数和参数名对应起来,放到map里
         Map<String, Object> paramValueMapping = new HashMap<>();
         Parameter[] parameters = method.getParameters();
         for (int i = 0; i < parameters.length; i++) {
             Parameter parameter = parameters[i];
             paramValueMapping.put(parameter.getName(), args[i]);
-
         }
         String jdbcSql = boundSql.getJdbcsqlText();
         PreparedStatement statement = connection.prepareStatement(jdbcSql);
@@ -71,45 +85,92 @@ public class SimpleExecutor implements Executor {
         }
         statement.execute();
         ResultSet resultSet = statement.getResultSet();
-        List<Object> returnList=new ArrayList<>();
-        //xxx:先看看是不是一个List 如果是则取出泛型类型覆盖clazz,并且标记isList为true
-        if(parameterTypeClass.isAssignableFrom(List.class)){
-            Type returnType = method.getGenericReturnType();
-            if(returnType instanceof ParameterizedType type){
-                parameterTypeClass= (Class<?>) type.getActualTypeArguments()[0];
-            }
-        }
-        Map<String, Method> fieldNames = new HashMap<>();
-        PropertyDescriptor[] props = Introspector.getBeanInfo(parameterTypeClass).getPropertyDescriptors();
-        for (PropertyDescriptor prop : props) {
-            Method setter = prop.getWriteMethod();
-            if (setter != null) {
-                //xxx:无论怎么样全都改为小写,避免繁琐的大小写问题
-                String fieldName = prop.getName().toLowerCase();
-                fieldNames.put(fieldName, setter);
-            }
-        }
-        //xxx:获取结果集的元数据,拿到字段名,然后根据字段名找到对应的setter方法,然后根据setter方法的参数类型找到对应的处理器,进行注入
-        ResultSetMetaData metaData = statement.getMetaData();
-        List<String> columnNames = new ArrayList<>();
-        for (int i = 0; i < metaData.getColumnCount(); i++) {
-            columnNames.add(metaData.getColumnName(i + 1).toLowerCase());
-        }
-        //xxx:调用无参构造器,构建一个实例
-        while (resultSet.next()) {
-            Object instance = parameterTypeClass.getDeclaredConstructor().newInstance();
-            for (String columnName : columnNames) {
-                Method setter = fieldNames.get(columnName);
-                TypeHandler typeHandler = typeHandlerRegistry.getTypeHandlers().get(setter.getParameterTypes()[0]);
-                setter.invoke(instance, typeHandler.getResult(resultSet, columnName));
+        List<T> returnList = new ArrayList<>();
+        //xxx:依照resultType确定返回值
+        Class<?> parameterTypeClass = getClassType(parameterType);
+        if (isUseResultMap) {
+            ResultMap resultMap = configuration.getResultMap(mappedStatement.getResultMapId());
+            ResultSetMetaData metaData = resultSet.getMetaData();
+
+            //xxx 当 isDisable 为 true 时，仅映射 ResultMap 中定义的字段
+            if (resultMap.isDisable()) {
+                while (resultSet.next()) {
+                    T instance = (T) getClassType(resultMap.getType()).getDeclaredConstructor().newInstance();
+                    for (ResultMapField field : resultMap.getFields()) {
+                        mapFieldWithHandler(resultSet, field, instance, typeHandlerRegistry);
+                    }
+                    returnList.add(instance);
+                }
+            } else {
+                //xxx 映射整个 ResultSetMetaData，但对 ResultMap 中定义的字段执行特殊映射
+                while (resultSet.next()) {
+                    T instance = (T) getClassType(resultMap.getType()).getDeclaredConstructor().newInstance();
+                    Map<String, ResultMapField> fieldMap = resultMap.getFields()
+                            .stream()
+                            .collect(Collectors.toMap(ResultMapField::getColumn, Function.identity()));
+                    for (int i = 1; i <= metaData.getColumnCount(); i++) {
+                        String columnName = metaData.getColumnLabel(i).toLowerCase();
+
+                        ResultMapField field = fieldMap.getOrDefault(columnName, new ResultMapField(metaData.getColumnLabel(i), metaData.getColumnLabel(i), "A", null));
+
+                        mapFieldWithHandler(resultSet, field, instance, typeHandlerRegistry);
+                    }
+                    returnList.add(instance);
+                }
 
             }
-            returnList.add(instance);
+        } else {
+            Map<String, Method> fieldNames = new HashMap<>();
+            PropertyDescriptor[] props = Introspector.getBeanInfo(parameterTypeClass).getPropertyDescriptors();
+            for (PropertyDescriptor prop : props) {
+                Method setter = prop.getWriteMethod();
+                if (setter != null) {
+                    //xxx:无论怎么样全都改为小写,避免繁琐的大小写问题
+                    String fieldName = prop.getName().toLowerCase();
+                    fieldNames.put(fieldName, setter);
+                }
+            }
+            //xxx:获取结果集的元数据,拿到字段名,然后根据字段名找到对应的setter方法,然后根据setter方法的参数类型找到对应的处理器,进行注入
+            ResultSetMetaData metaData = statement.getMetaData();
+            List<String> columnNames = new ArrayList<>();
+            for (int i = 0; i < metaData.getColumnCount(); i++) {
+                columnNames.add(metaData.getColumnName(i + 1).toLowerCase());
+            }
+            //xxx:调用无参构造器,构建一个实例
+            while (resultSet.next()) {
+                T instance = (T) parameterTypeClass.getDeclaredConstructor().newInstance();
+                for (String columnName : columnNames) {
+                    Method setter = fieldNames.get(columnName);
+                    TypeHandler<?> typeHandler = typeHandlerRegistry.getTypeHandlers().get(setter.getParameterTypes()[0]);
+                    setter.invoke(instance, typeHandler.getResult(resultSet, columnName));
 
+                }
+                returnList.add(instance);
+
+            }
         }
         parameterMappingTokenHandler.resetParameterMappings();
         connection.close();
         return (T) returnList;
+
+    }
+
+    private void mapFieldWithHandler(ResultSet resultSet, ResultMapField field, Object instance, TypeHandlerRegistry typeHandlerRegistry) throws Exception {
+        String column = field.getColumn();
+
+        Object value;
+        if (field.getJavaType() != null) {
+            Class<?> javaTypeClass = getClassType(field.getJavaType());
+            TypeHandler<?> typeHandler = typeHandlerRegistry.getTypeHandlers().get(javaTypeClass);
+            value = typeHandler.getResult(resultSet, column);
+        } else {
+            value = resultSet.getObject(column);
+        }
+        PropertyDescriptor propDesc = new PropertyDescriptor(field.getProperty(), instance.getClass());
+        Method setter = propDesc.getWriteMethod();
+        if (setter != null) {
+            setter.invoke(instance, value);
+        }
     }
 
 
